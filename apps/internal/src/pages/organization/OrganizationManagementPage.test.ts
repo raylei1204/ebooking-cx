@@ -267,4 +267,37 @@ describe('OrganizationManagementPage', () => {
     );
     expect(wrapper.text()).toContain('Kuafu International');
   });
+
+  it('changes the selected user password and closes the dialog on success', async () => {
+    const apiClient = createAdminApiClientMock();
+    const wrapper = await mountPage(apiClient);
+    const vm = wrapper.vm as unknown as {
+      openChangePasswordDialog: () => Promise<void>;
+      savePassword: () => Promise<void>;
+      passwordForm: {
+        password: string;
+        confirmPassword: string;
+      };
+      passwordDialogVisible: boolean;
+    };
+
+    await vm.openChangePasswordDialog();
+    vm.passwordForm.password = 'NewPassword123!';
+    vm.passwordForm.confirmPassword = 'NewPassword123!';
+
+    await vm.savePassword();
+    await flushPromises();
+
+    expect(apiClient.changeUserPassword).toHaveBeenCalledWith(
+      'user-2',
+      {
+        password: 'NewPassword123!'
+      },
+      'access-token'
+    );
+    expect(ElMessage.success).toHaveBeenCalledWith(
+      'Password changed successfully.'
+    );
+    expect(vm.passwordDialogVisible).toBe(false);
+  });
 });

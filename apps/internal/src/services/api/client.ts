@@ -1,7 +1,7 @@
 import type {
-  ApiErrorBody,
   ApiSuccessResponse,
   LoginResponseData,
+  PaginationMeta,
   TokenResponseData
 } from '@ebooking-cx/shared';
 
@@ -18,11 +18,11 @@ const DEFAULT_HEADERS = {
   'Content-Type': 'application/json'
 } as const;
 
-export async function apiRequest<TResponse>(
+export async function apiRequest<TResponse, TMeta = PaginationMeta>(
   path: string,
   options: RequestOptions = {},
   config: AuthApiClientConfig = {}
-): Promise<ApiSuccessResponse<TResponse>> {
+): Promise<ApiSuccessResponse<TResponse, TMeta>> {
   const requestInit: RequestInit = {
     method: options.method ?? 'GET',
     headers: {
@@ -40,14 +40,19 @@ export async function apiRequest<TResponse>(
   }
 
   const response = await fetch(`${config.baseUrl ?? ''}${path}`, requestInit);
-
-  const body = (await response.json()) as unknown;
+  const body = await parseResponseBody(response);
 
   if (!response.ok) {
     throw toApiClientError(body, response.status);
   }
 
-  return body as ApiSuccessResponse<TResponse>;
+  if (body === null) {
+    return {
+      data: undefined as TResponse
+    };
+  }
+
+  return body as ApiSuccessResponse<TResponse, TMeta>;
 }
 
 export function createAuthApiClient(
@@ -98,4 +103,18 @@ function toApiClientError(body: unknown, statusCode: number): ApiClientError {
     message: `Request failed with status ${statusCode}.`,
     statusCode
   };
+}
+
+async function parseResponseBody(response: Response): Promise<unknown> {
+  if (response.status === 204) {
+    return null;
+  }
+
+  const responseText = await response.text();
+
+  if (responseText.trim().length === 0) {
+    return null;
+  }
+
+  return JSON.parse(responseText) as unknown;
 }

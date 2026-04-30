@@ -189,7 +189,7 @@ export function createAdminApiClient(
       );
     },
     createUser(payload, accessToken) {
-      return apiRequest<CreateUserResponseData>(
+      return apiRequest<CreateUserResponseData, UserMutationMeta>(
         '/api/v1/internal/users',
         {
           method: 'POST',
@@ -197,10 +197,10 @@ export function createAdminApiClient(
           accessToken
         },
         config
-      ) as Promise<ApiSuccessResponse<CreateUserResponseData, UserMutationMeta>>;
+      );
     },
     updateUser(userId, payload, accessToken) {
-      return apiRequest<UserSummary>(
+      return apiRequest<UserSummary, UserMutationMeta>(
         `/api/v1/internal/users/${userId}`,
         {
           method: 'PATCH',
@@ -208,7 +208,7 @@ export function createAdminApiClient(
           accessToken
         },
         config
-      ) as Promise<ApiSuccessResponse<UserSummary, UserMutationMeta>>;
+      );
     },
     async deleteUser(userId, accessToken) {
       await apiRequest<undefined>(

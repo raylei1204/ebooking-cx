@@ -5,7 +5,12 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['**/node_modules/**', '**/dist/**', '**/coverage/**']
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/coverage/**',
+      'apps/*/placeholder.ts'
+    ]
   },
   js.configs.recommended,
   {
@@ -32,6 +37,14 @@ export default [
         }
       ],
       '@typescript-eslint/no-explicit-any': 'error'
+    }
+  },
+  {
+    files: ['apps/*/src/**/*.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.browser
+      }
     }
   }
 ];

@@ -7,8 +7,6 @@ import type { RouteRecordRaw } from 'vue-router';
 
 import { readAuthSnapshot } from '@/stores/auth-storage';
 
-declare const importMeta: ImportMeta;
-
 interface RouteMetaFlags {
   requiresAuth?: boolean;
   publicOnly?: boolean;

@@ -11,8 +11,9 @@ Harden the auth module by connecting backend and frontend flows end to end, fill
 - `packages/api/package.json`
 - `apps/internal/package.json`
 - `packages/db/package.json`
-- `infra/scripts/start-test.sh`
-- `infra/container/podman-compose.test.yml`
+- `apps/internal/src/services/api/**/*.test.ts`
+- `infra/scripts/start-dev.sh`
+- `infra/container/podman-compose.dev.yml`
 - `.env.example`
 - `docs/plans/auth/*.md`
 - `docs/**` auth-related setup notes if needed
@@ -23,7 +24,7 @@ Harden the auth module by connecting backend and frontend flows end to end, fill
 - [ ] Add or refine Supertest coverage for auth, organization, and user endpoints where integration gaps remain.
 - [ ] Add or refine frontend tests for login, route protection, organization workflows, and password-change behavior where coverage is still thin.
 - [ ] Ensure the backend and frontend both honor the shared response envelope and role names consistently.
-- [ ] Validate the Prisma migration, seed, and test database setup against the Podman test workflow.
+- [ ] Validate the Prisma migration, seed, and local database setup against the current Podman workflow (`infra/scripts/start-dev.sh` + `infra/container/podman-compose.dev.yml`).
 - [ ] Run the planned verification commands for type-checking, linting, Prisma generation, backend tests, frontend tests, and integration tests.
 - [ ] Fix any environment documentation gaps in `.env.example` and related setup docs that would block a fresh developer from running auth locally.
 - [ ] Update the planning docs only if execution revealed a necessary sequencing or ownership correction.
@@ -33,7 +34,7 @@ Harden the auth module by connecting backend and frontend flows end to end, fill
 
 - Core auth, organization, and user flows work together across backend and frontend.
 - Test coverage exists for the highest-risk backend and frontend behaviors introduced by the auth module.
-- The Podman-backed test workflow is documented and usable for auth-related verification.
+- The current Podman-backed verification workflow is documented and usable for auth-related verification.
 - Any remaining gaps are clearly documented as follow-up work rather than silently deferred.
 
 ## Out-of-Scope Items
