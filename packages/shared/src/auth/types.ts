@@ -19,6 +19,10 @@ export interface RefreshTokenRequest {
   refreshToken: string;
 }
 
+export interface LogoutRequest {
+  refreshToken: string;
+}
+
 export interface TokenResponseData {
   accessToken: string;
   refreshToken: string;
@@ -26,4 +30,8 @@ export interface TokenResponseData {
 
 export interface LoginResponseData extends TokenResponseData {
   user: AuthenticatedUserSummary;
+}
+
+export interface LogoutResponseData {
+  success: true;
 }
