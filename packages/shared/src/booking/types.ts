@@ -18,13 +18,18 @@ export const SERVICE_REQUIREMENTS = [
 ] as const;
 export type ServiceRequirement = (typeof SERVICE_REQUIREMENTS)[number];
 
-export const OPTIONAL_SERVICES = ['PICKUP', 'HAULAGE'] as const;
+export const OPTIONAL_SERVICES = [
+  'PICKUP',
+  'HAULAGE',
+  'REPACK',
+  'DECLARATION',
+  'INSURANCE'
+] as const;
 export type OptionalService = (typeof OPTIONAL_SERVICES)[number];
 
 export const BILL_OF_LADING_REQUIREMENTS = [
   'SHIPPED_ON_BOARD',
-  'SURRENDERED',
-  'SEA_WAYBILL'
+  'RECEIVED_FOR_SHIPMENT'
 ] as const;
 export type BillOfLadingRequirement =
   (typeof BILL_OF_LADING_REQUIREMENTS)[number];

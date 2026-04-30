@@ -1,8 +1,11 @@
 import { describe, expect, it } from '@jest/globals';
 import {
+  BILL_OF_LADING_REQUIREMENTS,
   BOOKING_STATUSES,
+  OPTIONAL_SERVICES,
   SHIP_MODES,
   ROLE_NAMES,
+  SERVICE_REQUIREMENTS,
   type ApiErrorResponse,
   type ApiSuccessResponse,
   type AuthenticatedUserSummary,
@@ -199,6 +202,18 @@ describe('shared contracts', () => {
     expect(ROLE_NAMES).toEqual(['admin', 'shipper', 'consignee', 'agent']);
     expect(SHIP_MODES).toEqual(['AIR', 'SEA']);
     expect(BOOKING_STATUSES).toEqual(['DRAFT', 'SUBMITTED', 'CANCELLED']);
+    expect(SERVICE_REQUIREMENTS).toEqual(['CFS/CFS', 'CFS/CY', 'CY/CFS', 'CY/CY']);
+    expect(OPTIONAL_SERVICES).toEqual([
+      'PICKUP',
+      'HAULAGE',
+      'REPACK',
+      'DECLARATION',
+      'INSURANCE'
+    ]);
+    expect(BILL_OF_LADING_REQUIREMENTS).toEqual([
+      'SHIPPED_ON_BOARD',
+      'RECEIVED_FOR_SHIPMENT'
+    ]);
     expect(loginRequest.email).toBe('admin@example.com');
     expect(loginResponse.data.user).toEqual(user);
     expect(accountUser.roles).toEqual(['shipper']);

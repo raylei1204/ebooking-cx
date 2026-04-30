@@ -48,11 +48,11 @@ with CargoWise via Universal XML; CargoWise returns the HAWB Number asynchronous
 
 | Actor | Company | Role | Access |
 |---|---|---|---|
-| Internal Staff | ARC (hardcoded v1) | Creates and manages bookings | `staff` |
+| Internal Staff | ARC (hardcoded v1) | Creates and manages bookings | `shipper` |
 | Internal Admin | ARC (hardcoded v1) | Same as staff + system data management | `admin` |
 
 - All routes: `/api/v1/internal/...`
-- All routes protected by `JwtAuthGuard` + `RolesGuard` with `@Roles('staff', 'admin')`
+- All routes protected by `JwtAuthGuard` + `RolesGuard` with `@Roles('shipper', 'admin')`
 - `companyCode` is **hardcoded as `"arc"`** in v1. It is not stored on the `users` table and
   not supplied by the client. The `BookingNumberService` reads it from a server-side constant.
 - When multi-company support is added in a future version, `companyCode` will move to the `users`

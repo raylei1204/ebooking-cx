@@ -31,23 +31,27 @@ class BookingPartyDto {
   @IsUUID()
   public partyId!: string | null;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   @MaxLength(255)
   public name!: string;
 
+  @IsOptional()
   @IsString()
   @MaxLength(255)
   public address1!: string;
 
+  @IsOptional()
   @IsString()
   @MaxLength(255)
   public address2!: string;
 
+  @IsOptional()
   @IsString()
   @MaxLength(255)
   public address3!: string;
 
+  @IsOptional()
   @IsString()
   @MaxLength(255)
   public address4!: string;
@@ -163,14 +167,15 @@ class BookingShipmentDetailDto {
 }
 
 class BookingMarksAndNumberDto {
+  @IsOptional()
   @IsString()
-  @MaxLength(4000)
   public descriptionOfGoods!: string;
 
+  @IsOptional()
   @IsString()
-  @MaxLength(4000)
   public marksNos!: string;
 
+  @IsOptional()
   @IsBoolean()
   public containsBatteries!: boolean;
 }
@@ -222,10 +227,12 @@ export class CreateBookingDto implements CreateBookingPayload {
   @MaxLength(100)
   public referenceNumber?: string | null;
 
+  @IsOptional()
   @ValidateNested()
   @Type(() => BookingPartyDto)
   public shipper!: BookingPartyDto;
 
+  @IsOptional()
   @ValidateNested()
   @Type(() => BookingPartyDto)
   public consignee!: BookingPartyDto;
@@ -240,14 +247,17 @@ export class CreateBookingDto implements CreateBookingPayload {
   @Type(() => BookingPartyDto)
   public notifyParty2!: BookingPartyDto | null;
 
+  @IsOptional()
   @ValidateNested()
   @Type(() => BookingShipmentDetailDto)
   public shipmentDetail!: BookingShipmentDetailDto;
 
+  @IsOptional()
   @ValidateNested()
   @Type(() => BookingMarksAndNumberDto)
   public marksAndNumber!: BookingMarksAndNumberDto;
 
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => BookingPoDetailDto)

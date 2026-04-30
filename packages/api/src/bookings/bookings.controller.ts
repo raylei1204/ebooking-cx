@@ -22,8 +22,9 @@ import type {
   PaginationMeta
 } from '@ebooking-cx/shared';
 
-import { Roles } from '../auth/decorators';
+import { CurrentUser, Roles } from '../auth/decorators';
 import { JwtAuthGuard, RolesGuard } from '../auth/guards';
+import type { AuthenticatedRequestUser } from '../auth/types';
 import { BOOKING_ACCESS_ROLES } from './constants';
 import {
   CreateBookingDto,
@@ -42,9 +43,10 @@ export class BookingsController {
 
   @Post('bookings')
   public async createBooking(
+    @CurrentUser() user: AuthenticatedRequestUser,
     @Body() body: CreateBookingDto
   ): Promise<BookingSummary> {
-    return this.bookingsService.createBooking(body);
+    return this.bookingsService.createBooking(user.userId, body);
   }
 
   @Patch('bookings/:bookingId')

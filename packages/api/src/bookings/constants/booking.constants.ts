@@ -1,4 +1,6 @@
 export const BOOKING_ACCESS_ROLES = ['shipper', 'admin'] as const;
+// v1 hardcodes ARC until company code moves onto the authenticated user model.
+export const BOOKING_COMPANY_CODE = 'arc' as const;
 
 export const BOOKING_DEFAULT_PAGE = 1;
 export const BOOKING_DEFAULT_LIMIT = 20;

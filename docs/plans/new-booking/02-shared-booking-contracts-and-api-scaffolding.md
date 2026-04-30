@@ -35,7 +35,7 @@ Create the shared booking domain types and the NestJS booking module scaffolding
 - [ ] `GET /api/v1/internal/parties`
 - [ ] `GET /api/v1/internal/ports`
 - [ ] `POST /api/v1/internal/bookings/po-import`
-- [ ] Protect every booking-related route with `JwtAuthGuard`, `RolesGuard`, and `@Roles('staff', 'admin')`.
+- [ ] Protect every booking-related route with `JwtAuthGuard`, `RolesGuard`, and `@Roles('shipper', 'admin')`.
 - [ ] Add contract-level tests to confirm shared booking response shapes stay aligned with the API envelope conventions.
 - [ ] Add or stub the frontend API client surface area so later UI phases can call typed methods without redefining payloads.
 
@@ -43,7 +43,7 @@ Create the shared booking domain types and the NestJS booking module scaffolding
 
 - Booking types exist in `packages/shared` and are exported for both backend and frontend use.
 - The API module is registered and exposes the correct route skeletons under `/api/v1/internal/...`.
-- Booking endpoints are auth-protected with the required staff/admin role restriction.
+- Booking endpoints are auth-protected with the required shipper/admin role restriction.
 - No booking business logic is implemented beyond safe scaffolding and typing foundations.
 
 ## Out-of-Scope Items
