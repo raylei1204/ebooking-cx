@@ -1,5 +1,15 @@
 import type {
   ApiSuccessResponse,
+  BookingDetails,
+  BookingDraftListFilters,
+  BookingDraftListItem,
+  BookingLookupParty,
+  BookingLookupPartyFilters,
+  BookingLookupPort,
+  BookingLookupPortFilters,
+  BookingPoImportResponseData,
+  BookingSummary,
+  CreateBookingPayload,
   ChangeUserPasswordPayload,
   CreateUserResponseData,
   OrganizationListFilters,
@@ -7,6 +17,7 @@ import type {
   OrganizationRelationshipPayload,
   OrganizationRelationshipSummary,
   OrganizationSummary,
+  UpdateBookingPayload,
   UserMutationMeta,
   UserPayload,
   UserSummary
@@ -25,11 +36,40 @@ export interface AdminApiClient {
     payload: OrganizationPayload,
     accessToken: string
   ): Promise<ApiSuccessResponse<OrganizationSummary>>;
+  createBooking(
+    payload: CreateBookingPayload,
+    accessToken: string
+  ): Promise<ApiSuccessResponse<BookingSummary>>;
   updateOrganization(
     organizationId: string,
     payload: Partial<OrganizationPayload>,
     accessToken: string
   ): Promise<ApiSuccessResponse<OrganizationSummary>>;
+  updateBooking(
+    bookingId: string,
+    payload: UpdateBookingPayload,
+    accessToken: string
+  ): Promise<ApiSuccessResponse<BookingSummary>>;
+  getBooking(
+    bookingId: string,
+    accessToken: string
+  ): Promise<ApiSuccessResponse<BookingDetails>>;
+  listBookings(
+    filters: BookingDraftListFilters,
+    accessToken: string
+  ): Promise<ApiSuccessResponse<BookingDraftListItem[]>>;
+  listParties(
+    filters: BookingLookupPartyFilters,
+    accessToken: string
+  ): Promise<ApiSuccessResponse<BookingLookupParty[]>>;
+  listPorts(
+    filters: BookingLookupPortFilters,
+    accessToken: string
+  ): Promise<ApiSuccessResponse<BookingLookupPort[]>>;
+  importBookingPoFile(
+    formData: FormData,
+    accessToken: string
+  ): Promise<ApiSuccessResponse<BookingPoImportResponseData>>;
   deleteOrganization(
     organizationId: string,
     accessToken: string
@@ -115,12 +155,133 @@ export function createAdminApiClient(
         config
       );
     },
+    createBooking(payload, accessToken) {
+      return apiRequest<BookingSummary>(
+        '/api/v1/internal/bookings',
+        {
+          method: 'POST',
+          body: payload,
+          accessToken
+        },
+        config
+      );
+    },
     updateOrganization(organizationId, payload, accessToken) {
       return apiRequest<OrganizationSummary>(
         `/api/v1/internal/organizations/${organizationId}`,
         {
           method: 'PATCH',
           body: payload,
+          accessToken
+        },
+        config
+      );
+    },
+    updateBooking(bookingId, payload, accessToken) {
+      return apiRequest<BookingSummary>(
+        `/api/v1/internal/bookings/${bookingId}`,
+        {
+          method: 'PATCH',
+          body: payload,
+          accessToken
+        },
+        config
+      );
+    },
+    getBooking(bookingId, accessToken) {
+      return apiRequest<BookingDetails>(
+        `/api/v1/internal/bookings/${bookingId}`,
+        {
+          accessToken
+        },
+        config
+      );
+    },
+    listBookings(filters, accessToken) {
+      const query = new URLSearchParams();
+
+      if (filters.status !== undefined) {
+        query.set('status', filters.status);
+      }
+
+      if (filters.page !== undefined) {
+        query.set('page', String(filters.page));
+      }
+
+      if (filters.limit !== undefined) {
+        query.set('limit', String(filters.limit));
+      }
+
+      const search = query.size > 0 ? `?${query.toString()}` : '';
+
+      return apiRequest<BookingDraftListItem[]>(
+        `/api/v1/internal/bookings${search}`,
+        {
+          accessToken
+        },
+        config
+      );
+    },
+    listParties(filters, accessToken) {
+      const query = new URLSearchParams();
+
+      if (filters.search !== undefined && filters.search.length > 0) {
+        query.set('search', filters.search);
+      }
+
+      if (filters.page !== undefined) {
+        query.set('page', String(filters.page));
+      }
+
+      if (filters.limit !== undefined) {
+        query.set('limit', String(filters.limit));
+      }
+
+      const search = query.size > 0 ? `?${query.toString()}` : '';
+
+      return apiRequest<BookingLookupParty[]>(
+        `/api/v1/internal/parties${search}`,
+        {
+          accessToken
+        },
+        config
+      );
+    },
+    listPorts(filters, accessToken) {
+      const query = new URLSearchParams();
+
+      if (filters.search !== undefined && filters.search.length > 0) {
+        query.set('search', filters.search);
+      }
+
+      if (filters.mode !== undefined) {
+        query.set('mode', filters.mode);
+      }
+
+      if (filters.page !== undefined) {
+        query.set('page', String(filters.page));
+      }
+
+      if (filters.limit !== undefined) {
+        query.set('limit', String(filters.limit));
+      }
+
+      const search = query.size > 0 ? `?${query.toString()}` : '';
+
+      return apiRequest<BookingLookupPort[]>(
+        `/api/v1/internal/ports${search}`,
+        {
+          accessToken
+        },
+        config
+      );
+    },
+    importBookingPoFile(formData, accessToken) {
+      return apiRequest<BookingPoImportResponseData>(
+        '/api/v1/internal/bookings/po-import',
+        {
+          method: 'POST',
+          body: formData,
           accessToken
         },
         config

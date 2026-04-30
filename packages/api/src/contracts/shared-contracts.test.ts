@@ -1,9 +1,17 @@
 import { describe, expect, it } from '@jest/globals';
 import {
+  BOOKING_STATUSES,
+  SHIP_MODES,
   ROLE_NAMES,
   type ApiErrorResponse,
   type ApiSuccessResponse,
   type AuthenticatedUserSummary,
+  type BookingDraftListItem,
+  type BookingLookupParty,
+  type BookingLookupPort,
+  type BookingPoImportResponseData,
+  type BookingSummary,
+  type CreateBookingPayload,
   type LoginRequest,
   type LoginResponseData,
   type OrganizationSummary,
@@ -11,7 +19,7 @@ import {
 } from '@ebooking-cx/shared';
 
 describe('shared contracts', () => {
-  it('exports the auth, organization, user, and response contract surface', () => {
+  it('exports the auth, organization, user, response, and booking contract surface', () => {
     const user: AuthenticatedUserSummary = {
       id: 'user-1',
       email: 'admin@example.com',
@@ -65,6 +73,121 @@ describe('shared contracts', () => {
       updatedAt: '2026-04-30T00:00:00.000Z'
     };
 
+    const bookingPayload: CreateBookingPayload = {
+      isDraft: false,
+      shipMode: 'AIR',
+      referenceNumber: 'REF-001',
+      shipper: {
+        partyId: 'party-1',
+        name: 'Acme Corp',
+        address1: '123 Main St',
+        address2: '',
+        address3: '',
+        address4: ''
+      },
+      consignee: {
+        partyId: 'party-2',
+        name: 'Beta Ltd',
+        address1: '456 Oak Ave',
+        address2: '',
+        address3: '',
+        address4: ''
+      },
+      notifyParty1: null,
+      notifyParty2: null,
+      shipmentDetail: {
+        originPortId: 'port-1',
+        destinationPortId: 'port-2',
+        finalDestinationPortId: null,
+        grossWeight: 100.5,
+        cbm: 2.3,
+        numberOfPackage: 10,
+        cargoReadyDate: '2026-06-01',
+        etd: '2026-06-05',
+        eta: '2026-06-12',
+        freightCharges: 'PREPAID',
+        otherCharges: 'COLLECT',
+        incoterm: 'CIF',
+        sampleShipment: false,
+        seaDetail: null
+      },
+      marksAndNumber: {
+        descriptionOfGoods: 'Textile goods',
+        marksNos: 'PO-001 / CARTON 1-10',
+        containsBatteries: false
+      },
+      poDetails: [
+        {
+          poNumber: 'PO-001',
+          styleNumber: 'ST-001',
+          itemNumber: 'ITEM-001',
+          goodsDescription: 'Cotton T-Shirts',
+          ctns: 5,
+          pieces: 100,
+          grossWeight: 50,
+          cbm: 1.2
+        }
+      ]
+    };
+
+    const bookingSummary: BookingSummary = {
+      bookingId: 'booking-1',
+      eBookingNumber: 'arc2026043000001',
+      hawbNumber: null,
+      status: 'SUBMITTED',
+      createdAt: '2026-04-30T10:00:00.000Z'
+    };
+
+    const draftItem: BookingDraftListItem = {
+      bookingId: 'booking-2',
+      referenceNumber: 'REF-002',
+      shipMode: 'SEA',
+      shipperName: 'Acme Corp',
+      createdAt: '2026-04-30T10:00:00.000Z'
+    };
+
+    const partyLookup: BookingLookupParty = {
+      partyId: 'party-1',
+      name: 'Acme Corp',
+      address1: '123 Main St',
+      address2: '',
+      address3: '',
+      address4: ''
+    };
+
+    const portLookup: BookingLookupPort = {
+      portId: 'port-1',
+      code: 'SGSIN',
+      name: 'Port of Singapore',
+      country: 'SG',
+      mode: 'SEA'
+    };
+
+    const poImportResponse: ApiSuccessResponse<BookingPoImportResponseData> = {
+      data: {
+        rows: [
+          {
+            rowIndex: 2,
+            poNumber: 'PO-001',
+            styleNumber: 'ST-001',
+            itemNumber: 'ITEM-001',
+            goodsDescription: 'Cotton T-Shirts',
+            ctns: 5,
+            pieces: 100,
+            grossWeight: 50,
+            cbm: 1.2
+          }
+        ],
+        parseErrors: [
+          {
+            rowIndex: 4,
+            field: 'ctns',
+            message: 'Must be a non-negative integer.'
+          }
+        ]
+      }
+    };
+
     const errorResponse: ApiErrorResponse = {
       error: {
         code: 'SHIPMENT_NOT_FOUND',
@@ -74,9 +197,17 @@ describe('shared contracts', () => {
     };
 
     expect(ROLE_NAMES).toEqual(['admin', 'shipper', 'consignee', 'agent']);
+    expect(SHIP_MODES).toEqual(['AIR', 'SEA']);
+    expect(BOOKING_STATUSES).toEqual(['DRAFT', 'SUBMITTED', 'CANCELLED']);
     expect(loginRequest.email).toBe('admin@example.com');
     expect(loginResponse.data.user).toEqual(user);
     expect(accountUser.roles).toEqual(['shipper']);
+    expect(bookingPayload.shipmentDetail.freightCharges).toBe('PREPAID');
+    expect(bookingSummary.status).toBe('SUBMITTED');
+    expect(draftItem.shipMode).toBe('SEA');
+    expect(partyLookup.partyId).toBe('party-1');
+    expect(portLookup.mode).toBe('SEA');
+    expect(poImportResponse.data.parseErrors).toHaveLength(1);
     expect(errorResponse.error.statusCode).toBe(404);
   });
 });

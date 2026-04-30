@@ -23,10 +23,12 @@ export async function apiRequest<TResponse, TMeta = PaginationMeta>(
   options: RequestOptions = {},
   config: AuthApiClientConfig = {}
 ): Promise<ApiSuccessResponse<TResponse, TMeta>> {
+  const isFormDataBody =
+    typeof FormData !== 'undefined' && options.body instanceof FormData;
   const requestInit: RequestInit = {
     method: options.method ?? 'GET',
     headers: {
-      ...DEFAULT_HEADERS,
+      ...(isFormDataBody ? { Accept: 'application/json' } : DEFAULT_HEADERS),
       ...(options.accessToken === undefined
         ? {}
         : {
@@ -36,7 +38,9 @@ export async function apiRequest<TResponse, TMeta = PaginationMeta>(
   };
 
   if (options.body !== undefined) {
-    requestInit.body = JSON.stringify(options.body);
+    requestInit.body = isFormDataBody
+      ? (options.body as FormData)
+      : JSON.stringify(options.body);
   }
 
   const response = await fetch(`${config.baseUrl ?? ''}${path}`, requestInit);

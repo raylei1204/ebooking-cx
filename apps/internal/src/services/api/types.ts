@@ -2,11 +2,22 @@ import type {
   ApiErrorResponse,
   ApiSuccessResponse,
   AuthenticatedUserSummary,
+  BookingDetails,
+  BookingDraftListFilters,
+  BookingDraftListItem,
+  BookingLookupParty,
+  BookingLookupPartyFilters,
+  BookingLookupPort,
+  BookingLookupPortFilters,
+  BookingPoImportResponseData,
+  BookingSummary,
+  CreateBookingPayload,
   LoginRequest,
   LoginResponseData,
   LogoutRequest,
   RefreshTokenRequest,
-  TokenResponseData
+  TokenResponseData,
+  UpdateBookingPayload
 } from '@ebooking-cx/shared';
 
 export interface ApiClientError {
@@ -36,6 +47,38 @@ export interface AuthStateSnapshot {
   accessToken: string;
   refreshToken: string;
   user: AuthenticatedUserSummary;
+}
+
+export interface AdminApiClient {
+  createBooking(
+    payload: CreateBookingPayload,
+    accessToken: string
+  ): Promise<ApiSuccessResponse<BookingSummary>>;
+  updateBooking(
+    bookingId: string,
+    payload: UpdateBookingPayload,
+    accessToken: string
+  ): Promise<ApiSuccessResponse<BookingSummary>>;
+  getBooking(
+    bookingId: string,
+    accessToken: string
+  ): Promise<ApiSuccessResponse<BookingDetails>>;
+  listBookings(
+    filters: BookingDraftListFilters,
+    accessToken: string
+  ): Promise<ApiSuccessResponse<BookingDraftListItem[]>>;
+  listParties(
+    filters: BookingLookupPartyFilters,
+    accessToken: string
+  ): Promise<ApiSuccessResponse<BookingLookupParty[]>>;
+  listPorts(
+    filters: BookingLookupPortFilters,
+    accessToken: string
+  ): Promise<ApiSuccessResponse<BookingLookupPort[]>>;
+  importBookingPoFile(
+    file: FormData,
+    accessToken: string
+  ): Promise<ApiSuccessResponse<BookingPoImportResponseData>>;
 }
 
 export interface AuthApiClientConfig {

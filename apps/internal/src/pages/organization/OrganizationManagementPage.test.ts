@@ -4,6 +4,12 @@ import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type {
   ApiSuccessResponse,
+  BookingDetails,
+  BookingDraftListItem,
+  BookingLookupParty,
+  BookingLookupPort,
+  BookingPoImportResponseData,
+  BookingSummary,
   CreateUserResponseData,
   OrganizationRelationshipSummary,
   OrganizationSummary,
@@ -83,12 +89,108 @@ function createAdminApiClientMock(
     listOrganizations: vi.fn().mockResolvedValue({
       data: [createOrganization()]
     } satisfies ApiSuccessResponse<OrganizationSummary[]>),
+    createBooking: vi.fn().mockResolvedValue({
+      data: {
+        bookingId: 'booking-1',
+        eBookingNumber: null,
+        hawbNumber: null,
+        status: 'DRAFT',
+        createdAt: '2026-04-30T00:00:00.000Z'
+      } satisfies BookingSummary
+    }),
     createOrganization: vi.fn().mockResolvedValue({
       data: createOrganization()
     } satisfies ApiSuccessResponse<OrganizationSummary>),
+    updateBooking: vi.fn().mockResolvedValue({
+      data: {
+        bookingId: 'booking-1',
+        eBookingNumber: null,
+        hawbNumber: null,
+        status: 'DRAFT',
+        createdAt: '2026-04-30T00:00:00.000Z'
+      } satisfies BookingSummary
+    }),
     updateOrganization: vi.fn().mockResolvedValue({
       data: createOrganization()
     } satisfies ApiSuccessResponse<OrganizationSummary>),
+    getBooking: vi.fn().mockResolvedValue({
+      data: {
+        bookingId: 'booking-1',
+        eBookingNumber: null,
+        hawbNumber: null,
+        status: 'DRAFT',
+        createdAt: '2026-04-30T00:00:00.000Z',
+        shipMode: 'AIR',
+        referenceNumber: null,
+        shipper: {
+          partyId: 'party-1',
+          name: 'Acme Corp',
+          address1: '123 Main St',
+          address2: '',
+          address3: '',
+          address4: ''
+        },
+        consignee: {
+          partyId: 'party-2',
+          name: 'Beta Ltd',
+          address1: '456 Oak Ave',
+          address2: '',
+          address3: '',
+          address4: ''
+        },
+        notifyParty1: null,
+        notifyParty2: null,
+        shipmentDetail: {
+          originPortId: null,
+          destinationPortId: null,
+          finalDestinationPortId: null,
+          grossWeight: null,
+          cbm: null,
+          numberOfPackage: null,
+          cargoReadyDate: null,
+          etd: null,
+          eta: null,
+          freightCharges: null,
+          otherCharges: null,
+          incoterm: null,
+          sampleShipment: null,
+          seaDetail: null
+        },
+        marksAndNumber: {
+          descriptionOfGoods: '',
+          marksNos: '',
+          containsBatteries: false
+        },
+        poDetails: []
+      } satisfies BookingDetails
+    }),
+    listBookings: vi.fn().mockResolvedValue({
+      data: [] satisfies BookingDraftListItem[],
+      meta: {
+        page: 1,
+        total: 0
+      }
+    }),
+    listParties: vi.fn().mockResolvedValue({
+      data: [] satisfies BookingLookupParty[],
+      meta: {
+        page: 1,
+        total: 0
+      }
+    }),
+    listPorts: vi.fn().mockResolvedValue({
+      data: [] satisfies BookingLookupPort[],
+      meta: {
+        page: 1,
+        total: 0
+      }
+    }),
+    importBookingPoFile: vi.fn().mockResolvedValue({
+      data: {
+        rows: [],
+        parseErrors: []
+      } satisfies BookingPoImportResponseData
+    }),
     deleteOrganization: vi.fn().mockResolvedValue(undefined),
     listOrganizationRelationships: vi.fn().mockResolvedValue({
       data: [createRelationship()]
