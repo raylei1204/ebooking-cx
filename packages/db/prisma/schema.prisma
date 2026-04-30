@@ -7,6 +7,67 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum BookingStatus {
+  DRAFT
+  SUBMITTED
+  CANCELLED
+}
+
+enum ShipMode {
+  AIR
+  SEA
+}
+
+enum BookingPartyRole {
+  SHIPPER
+  CONSIGNEE
+  NOTIFY_1
+  NOTIFY_2
+}
+
+enum ChargeType {
+  PREPAID
+  COLLECT
+}
+
+enum Incoterm {
+  CFR
+  CIF
+  CIP
+  TBD
+}
+
+enum SeaServiceRequire {
+  CFS_CFS @map("CFS/CFS")
+  CY_CY   @map("CY/CY")
+  CFS_CY  @map("CFS/CY")
+  CY_CFS  @map("CY/CFS")
+}
+
+enum SeaOptionalService {
+  PICKUP
+  HAULAGE
+  REPACK
+  DECLARATION
+  INSURANCE
+}
+
+enum ShipmentType {
+  FCL
+  LCL
+}
+
+enum PortMode {
+  AIR
+  SEA
+  BOTH
+}
+
+enum BillOfLadingRequirement {
+  SHIPPED_ON_BOARD
+  RECEIVED_FOR_SHIPMENT
+}
+
 model Role {
   id        String     @id @default(uuid()) @db.Uuid
   name      String     @unique @db.VarChar(50)
@@ -69,6 +130,7 @@ model User {
   organizationId String?        @map("organization_id") @db.Uuid
   createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  bookings       Booking[]
   organization   Organization?  @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   refreshTokens  RefreshToken[]
   userRoles      UserRole[]
@@ -99,4 +161,174 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+model Booking {
+  id               String                  @id @default(uuid()) @db.Uuid
+  companyCode      String                  @map("company_code") @db.VarChar(10)
+  eBookingNumber   String?                 @unique @map("e_booking_number") @db.VarChar(30)
+  hawbNumber       String?                 @map("hawb_number") @db.VarChar(50)
+  shipMode         ShipMode                @map("ship_mode")
+  referenceNumber  String?                 @map("reference_number") @db.VarChar(100)
+  status           BookingStatus           @default(DRAFT)
+  createdBy        String                  @map("created_by") @db.Uuid
+  createdAt        DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+  creator          User                    @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  marks            BookingMark?
+  parties          BookingParty[]
+  poDetails        BookingPoDetail[]
+  seaDetail        BookingSeaDetail?
+  shipmentDetail   BookingShipmentDetail?
+
+  @@index([createdBy])
+  @@index([status])
+  @@map("bookings")
+}
+
+model BookingParty {
+  id        String           @id @default(uuid()) @db.Uuid
+  bookingId String           @map("booking_id") @db.Uuid
+  role      BookingPartyRole
+  partyId   String?          @map("party_id") @db.Uuid
+  name      String           @db.VarChar(255)
+  address1  String?          @db.VarChar(255)
+  address2  String?          @db.VarChar(255)
+  address3  String?          @db.VarChar(255)
+  address4  String?          @db.VarChar(255)
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  booking   Booking          @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  party     Party?           @relation(fields: [partyId], references: [id], onDelete: SetNull)
+
+  @@unique([bookingId, role])
+  @@index([bookingId])
+  @@index([partyId])
+  @@map("booking_parties")
+}
+
+model BookingShipmentDetail {
+  id                     String      @id @default(uuid()) @db.Uuid
+  bookingId              String      @unique @map("booking_id") @db.Uuid
+  originPortId           String?     @map("origin_port_id") @db.Uuid
+  destinationPortId      String?     @map("destination_port_id") @db.Uuid
+  finalDestinationPortId String?     @map("final_destination_port_id") @db.Uuid
+  grossWeight            Decimal?    @map("gross_weight") @db.Decimal(10, 2)
+  cbm                    Decimal?    @db.Decimal(10, 3)
+  volumeWeight           Decimal?    @map("volume_weight") @db.Decimal(10, 2)
+  chargeableWeight       Decimal?    @map("chargeable_weight") @db.Decimal(10, 2)
+  numberOfPackage        Int?        @map("number_of_package")
+  cargoReadyDate         DateTime?   @map("cargo_ready_date") @db.Date
+  etd                    DateTime?   @db.Date
+  eta                    DateTime?   @db.Date
+  freightCharges         ChargeType? @map("freight_charges")
+  otherCharges           ChargeType? @map("other_charges")
+  incoterm               Incoterm?
+  sampleShipment         Boolean?    @map("sample_shipment")
+  createdAt              DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  booking                Booking     @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  destinationPort        PortInfo?   @relation("BookingShipmentDestinationPort", fields: [destinationPortId], references: [id], onDelete: SetNull)
+  finalDestinationPort   PortInfo?   @relation("BookingShipmentFinalDestinationPort", fields: [finalDestinationPortId], references: [id], onDelete: SetNull)
+  originPort             PortInfo?   @relation("BookingShipmentOriginPort", fields: [originPortId], references: [id], onDelete: SetNull)
+
+  @@index([originPortId])
+  @@index([destinationPortId])
+  @@index([finalDestinationPortId])
+  @@map("booking_shipment_details")
+}
+
+model BookingSeaDetail {
+  id                       String                   @id @default(uuid()) @db.Uuid
+  bookingId                String                   @unique @map("booking_id") @db.Uuid
+  exportLicenseNo          String?                  @map("export_license_no") @db.VarChar(100)
+  serviceRequire           SeaServiceRequire?       @map("service_require")
+  optionalServices         SeaOptionalService[]     @map("optional_services")
+  billOfLadingRequirement  BillOfLadingRequirement? @map("bill_of_lading_requirement")
+  numberOfOriginalBl       Int?                     @map("number_of_original_bl")
+  shipmentType             ShipmentType?            @map("shipment_type")
+  containerGp20            Int                      @default(0) @map("container_gp20")
+  containerGp40            Int                      @default(0) @map("container_gp40")
+  containerHq40            Int                      @default(0) @map("container_hq40")
+  containerGp45            Int                      @default(0) @map("container_gp45")
+  createdAt                DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(6)
+  booking                  Booking                  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("booking_sea_details")
+}
+
+model BookingMark {
+  id                 String    @id @default(uuid()) @db.Uuid
+  bookingId          String    @unique @map("booking_id") @db.Uuid
+  descriptionOfGoods String?   @map("description_of_goods") @db.Text
+  marksNos           String?   @map("marks_nos") @db.Text
+  containsBatteries  Boolean?  @map("contains_batteries")
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  booking            Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("booking_marks")
+}
+
+model BookingPoDetail {
+  id               String    @id @default(uuid()) @db.Uuid
+  bookingId        String    @map("booking_id") @db.Uuid
+  rowNumber        Int       @map("row_number")
+  poNumber         String    @map("po_number") @db.VarChar(100)
+  styleNumber      String?   @map("style_number") @db.VarChar(100)
+  itemNumber       String?   @map("item_number") @db.VarChar(100)
+  goodsDescription String?   @map("goods_description") @db.VarChar(255)
+  ctns             Int?
+  pieces           Int?
+  grossWeight      Decimal?  @map("gross_weight") @db.Decimal(10, 2)
+  cbm              Decimal?  @db.Decimal(10, 3)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  booking          Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@map("booking_po_details")
+}
+
+model Party {
+  id        String         @id @default(uuid()) @db.Uuid
+  name      String         @db.VarChar(255)
+  address1  String?        @db.VarChar(255)
+  address2  String?        @db.VarChar(255)
+  address3  String?        @db.VarChar(255)
+  address4  String?        @db.VarChar(255)
+  createdAt DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  bookings  BookingParty[]
+
+  @@index([name])
+  @@map("parties")
+}
+
+model PortInfo {
+  id                           String                  @id @default(uuid()) @db.Uuid
+  code                         String                  @unique @db.VarChar(10)
+  name                         String                  @db.VarChar(255)
+  country                      String                  @db.VarChar(2)
+  mode                         PortMode
+  createdAt                    DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                    DateTime                @updatedAt @map("updated_at") @db.Timestamptz(6)
+  destinationShipmentDetails   BookingShipmentDetail[] @relation("BookingShipmentDestinationPort")
+  finalDestinationShipments    BookingShipmentDetail[] @relation("BookingShipmentFinalDestinationPort")
+  originShipmentDetails        BookingShipmentDetail[] @relation("BookingShipmentOriginPort")
+
+  @@index([name])
+  @@index([mode])
+  @@map("port_info")
+}
+
+model BookingSequence {
+  id           String   @id @default(uuid()) @db.Uuid
+  companyCode  String   @map("company_code") @db.VarChar(10)
+  date         DateTime @db.Date
+  lastSequence Int      @default(0) @map("last_sequence")
+
+  @@unique([companyCode, date])
+  @@map("booking_sequences")
 }
