@@ -1,20 +1,11 @@
 import { Injectable } from '@nestjs/common';
 
-interface HealthResponse {
-  data: {
-    service: string;
-    status: string;
-  };
-}
-
 @Injectable()
 export class AppService {
-  public getHealth(): HealthResponse {
+  public getHealth(): { service: string; status: string } {
     return {
-      data: {
-        service: 'api',
-        status: 'ok'
-      }
+      service: 'api',
+      status: 'ok'
     };
   }
 }
