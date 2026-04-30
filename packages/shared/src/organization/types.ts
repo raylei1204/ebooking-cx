@@ -39,3 +39,15 @@ export interface OrganizationRelationshipPayload {
   organizationId: string;
   label: string | null;
 }
+
+export interface OrganizationListFilters {
+  isShipper?: boolean;
+  isConsignee?: boolean;
+  isAgent?: boolean;
+}
+
+export interface OrganizationRelationshipSummary {
+  id: string;
+  label: string | null;
+  relatedOrganization: OrganizationSummary;
+}
