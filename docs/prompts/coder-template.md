@@ -1,8 +1,8 @@
 Read:
 - AGENTS.md
 - CLAUDE.md
-- docs/specs/auth.md
-- docs/plans/auth/03-auth-endpoints-and-guards.md
+- docs/specs/new-booking.md
+- docs/plans/new-booking/01-schema-and-reference-foundation.md
 
 Implement this task only.
 
