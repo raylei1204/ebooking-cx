@@ -7,13 +7,96 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(uuid()) @db.Uuid
-  email     String   @unique
-  password  String   @map("password_hash")
-  role      String   @default("customer")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+model Role {
+  id        String     @id @default(uuid()) @db.Uuid
+  name      String     @unique @db.VarChar(50)
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  userRoles UserRole[]
 
+  @@map("roles")
+}
+
+model Organization {
+  id             String                     @id @default(uuid()) @db.Uuid
+  name           String                     @db.VarChar(255)
+  code           String?                    @db.VarChar(50)
+  cwCode         String?                    @map("cw_code") @db.VarChar(50)
+  /// Service-layer validation must enforce at least one organization type flag.
+  isShipper      Boolean                    @default(false) @map("is_shipper")
+  isConsignee    Boolean                    @default(false) @map("is_consignee")
+  isAgent        Boolean                    @default(false) @map("is_agent")
+  origin         String?                    @db.VarChar(10)
+  address1       String?                    @db.VarChar(255)
+  address2       String?                    @db.VarChar(255)
+  address3       String?                    @db.VarChar(255)
+  address4       String?                    @db.VarChar(255)
+  city           String?                    @db.VarChar(100)
+  postal         String?                    @db.VarChar(20)
+  country        String?                    @db.VarChar(100)
+  createdAt      DateTime                   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime                   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  users          User[]
+  relationshipsA OrganizationRelationship[] @relation("OrganizationRelationshipOrgA")
+  relationshipsB OrganizationRelationship[] @relation("OrganizationRelationshipOrgB")
+
+  @@map("organizations")
+}
+
+model OrganizationRelationship {
+  id        String       @id @default(uuid()) @db.Uuid
+  orgIdA    String       @map("org_id_a") @db.Uuid
+  orgIdB    String       @map("org_id_b") @db.Uuid
+  label     String?      @db.VarChar(100)
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  orgA      Organization @relation("OrganizationRelationshipOrgA", fields: [orgIdA], references: [id], onDelete: Cascade)
+  orgB      Organization @relation("OrganizationRelationshipOrgB", fields: [orgIdB], references: [id], onDelete: Cascade)
+
+  @@unique([orgIdA, orgIdB])
+  @@index([orgIdA])
+  @@index([orgIdB])
+  @@map("organization_relationships")
+}
+
+model User {
+  id             String         @id @default(uuid()) @db.Uuid
+  email          String         @unique @db.VarChar(255)
+  passwordHash   String         @map("password_hash") @db.VarChar(255)
+  name           String         @db.VarChar(100)
+  phone          String?        @db.VarChar(50)
+  isDisabled     Boolean        @default(false) @map("is_disabled")
+  organizationId String?        @map("organization_id") @db.Uuid
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  organization   Organization?  @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  refreshTokens  RefreshToken[]
+  userRoles      UserRole[]
+
+  @@index([organizationId])
   @@map("users")
+}
+
+model UserRole {
+  userId    String   @map("user_id") @db.Uuid
+  roleId    String   @map("role_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@index([roleId])
+  @@map("user_roles")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  tokenHash String   @map("token_hash") @db.VarChar(255)
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
 }
