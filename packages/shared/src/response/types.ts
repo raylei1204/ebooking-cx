@@ -3,9 +3,9 @@ export interface PaginationMeta {
   total: number;
 }
 
-export interface ApiSuccessResponse<TData> {
+export interface ApiSuccessResponse<TData, TMeta = PaginationMeta> {
   data: TData;
-  meta?: PaginationMeta;
+  meta?: TMeta;
 }
 
 export interface ApiErrorBody {
