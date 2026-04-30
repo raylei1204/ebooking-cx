@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(psql -U raylui *)",
+      "Bash(psql -U postgres *)",
+      "Bash(brew *)",
+      "Bash(podman *)",
+      "Bash(gh *)",
+      "Bash(python3 *)",
+      "Bash(pip3 *)",
+      "Read(/Users/raylui/**)",
+      "Bash(npx prisma *)",
+      "Bash(npm install *)",
+      "Bash(git init *)",
+      "Bash(git -c user.name=raylui -c user.email= commit -m ' *)",
+      "Bash(git remote *)",
+      "Bash(git push *)"
+    ]
+  }
+}

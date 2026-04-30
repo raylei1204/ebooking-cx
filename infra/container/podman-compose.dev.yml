@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: docker.io/library/postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: docker.io/library/node:22-bookworm-slim
+    restart: unless-stopped
+    working_dir: /workspace
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3000
+      DATABASE_URL: ${DATABASE_URL_CONTAINER}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ACCESS_EXPIRY: ${JWT_ACCESS_EXPIRY}
+      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY}
+    command: >
+      sh -lc "npm install && npm run dev --workspace @ebooking-cx/api"
+    ports:
+      - '${API_PORT:-3000}:3000'
+    volumes:
+      - ../../:/workspace
+      - api_node_modules:/workspace/node_modules
+      - npm_cache:/root/.npm
+
+volumes:
+  postgres_dev_data:
+  api_node_modules:
+  npm_cache:
