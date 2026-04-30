@@ -272,6 +272,99 @@ button {
   padding: 24px;
 }
 
+.organization-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.organization-page__card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.organization-split-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.organization-panel {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--app-color-border);
+  border-radius: 8px;
+}
+
+.organization-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.organization-panel__header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.organization-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.organization-type-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.organization-pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.organization-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
+}
+
+.organization-form-grid__full {
+  grid-column: 1 / -1;
+}
+
+.organization-form__error {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--app-color-danger);
+}
+
+.organization-form__hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--app-color-text-secondary);
+}
+
+.relationship-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 16px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
 @media (max-width: 960px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -290,5 +383,11 @@ button {
   .login-page__body,
   .content-page__card {
     padding: 16px;
+  }
+
+  .organization-split-layout,
+  .organization-form-grid,
+  .relationship-toolbar {
+    grid-template-columns: 1fr;
   }
 }

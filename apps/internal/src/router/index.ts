@@ -49,7 +49,7 @@ const routes: RouteRecordRaw[] = [
         path: '/system/organization',
         name: 'organization',
         component: () =>
-          import('@/pages/organization/OrganizationPlaceholderPage.vue'),
+          import('@/pages/organization/OrganizationManagementPage.vue'),
         meta: {
           requiresAuth: true,
           requiresAdmin: true
